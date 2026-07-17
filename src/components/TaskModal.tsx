@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Trash2 } from 'lucide-react'
+import { X, Trash2, Building2 } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import type { Task, TaskPriority, TaskStatus } from '../types'
 import { PRIORITY_LABELS, STATUS_LABELS, STATUS_ORDER } from '../types'
@@ -9,12 +9,15 @@ export function TaskModal({
   task,
   defaultProjectId,
   onClose,
+  onOpenClient,
 }: {
   task: Task | null
   defaultProjectId: string
   onClose: () => void
+  onOpenClient?: (clientId: string) => void
 }) {
   const projects = useStore((s) => s.projects)
+  const clients = useStore((s) => s.clients)
   const addTask = useStore((s) => s.addTask)
   const updateTask = useStore((s) => s.updateTask)
   const deleteTask = useStore((s) => s.deleteTask)
@@ -29,6 +32,14 @@ export function TaskModal({
   const [dueDate, setDueDate] = useState(task?.dueDate?.slice(0, 10) ?? '')
 
   const activeProjects = projects.filter((p) => !p.archived)
+  const selectedProject = projects.find((p) => p.id === projectId)
+  const projectClient = selectedProject?.clientId ? clients.find((c) => c.id === selectedProject.clientId) : null
+
+  function handleOpenClient() {
+    if (!projectClient) return
+    onOpenClient?.(projectClient.id)
+    onClose()
+  }
 
   function handleSave() {
     if (!title.trim()) return
@@ -112,6 +123,18 @@ export function TaskModal({
                   </option>
                 ))}
               </select>
+              {projectClient && (
+                <button
+                  type="button"
+                  onClick={handleOpenClient}
+                  disabled={!onOpenClient}
+                  className="flex items-center gap-1 self-start text-xs transition-opacity enabled:hover:opacity-70"
+                  style={{ color: onOpenClient ? 'var(--series-1)' : 'var(--text-muted)' }}
+                >
+                  <Building2 size={11} />
+                  {projectClient.name}
+                </button>
+              )}
             </label>
 
             <label className="flex flex-col gap-1 text-xs" style={{ color: 'var(--text-secondary)' }}>

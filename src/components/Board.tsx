@@ -8,7 +8,13 @@ import { TaskModal } from './TaskModal'
 import { ProjectModal } from './ProjectModal'
 import { formatDate } from '../utils/date'
 
-export function Board({ projectId }: { projectId: string | 'all' }) {
+export function Board({
+  projectId,
+  onOpenClient,
+}: {
+  projectId: string | 'all'
+  onOpenClient?: (clientId: string) => void
+}) {
   const projects = useStore((s) => s.projects)
   const clients = useStore((s) => s.clients)
   const tasks = useStore((s) => s.tasks)
@@ -50,29 +56,42 @@ export function Board({ projectId }: { projectId: string | 'all' }) {
             const client = clients.find((c) => c.id === p.clientId)
             const overdue = p.deadline && p.stage !== 'completed' && Date.parse(p.deadline) < Date.now()
             return (
-              <button
+              <div
                 key={p.id}
-                onClick={() => setEditingProject(p)}
-                className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-shadow hover:shadow-[0_0_0_1px_var(--series-1)]"
+                className="flex items-center gap-1 rounded-full px-1 py-1 text-xs"
                 style={{ background: 'var(--surface-1)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
               >
-                <span className="h-2 w-2 rounded-full" style={{ background: p.color }} />
-                {p.name}
-                {client && <span style={{ color: 'var(--text-muted)' }}>· {client.name}</span>}
-                {p.stage !== 'active' && (
-                  <span style={{ color: 'var(--text-muted)' }}>· {PROJECT_STAGE_LABELS[p.stage]}</span>
-                )}
-                {p.deadline && (
-                  <span
-                    className="flex items-center gap-1"
-                    style={{ color: overdue ? 'var(--status-critical)' : 'var(--text-muted)' }}
+                <button
+                  onClick={() => setEditingProject(p)}
+                  className="flex items-center gap-1.5 rounded-full px-1.5 py-0.5 transition-shadow hover:shadow-[0_0_0_1px_var(--series-1)]"
+                >
+                  <span className="h-2 w-2 rounded-full" style={{ background: p.color }} />
+                  {p.name}
+                  {p.stage !== 'active' && (
+                    <span style={{ color: 'var(--text-muted)' }}>· {PROJECT_STAGE_LABELS[p.stage]}</span>
+                  )}
+                  {p.deadline && (
+                    <span
+                      className="flex items-center gap-1"
+                      style={{ color: overdue ? 'var(--status-critical)' : 'var(--text-muted)' }}
+                    >
+                      <CalendarClock size={11} />
+                      {formatDate(p.deadline)}
+                    </span>
+                  )}
+                  <Pencil size={10} style={{ color: 'var(--text-muted)' }} />
+                </button>
+                {client && (
+                  <button
+                    onClick={() => onOpenClient?.(client.id)}
+                    disabled={!onOpenClient}
+                    className="rounded-full px-1.5 py-0.5 transition-opacity enabled:hover:opacity-70"
+                    style={{ color: onOpenClient ? 'var(--series-1)' : 'var(--text-muted)' }}
                   >
-                    <CalendarClock size={11} />
-                    {formatDate(p.deadline)}
-                  </span>
+                    · {client.name}
+                  </button>
                 )}
-                <Pencil size={10} style={{ color: 'var(--text-muted)' }} />
-              </button>
+              </div>
             )
           })}
           <button
@@ -144,6 +163,7 @@ export function Board({ projectId }: { projectId: string | 'all' }) {
           task={editingTask === 'new' ? null : editingTask}
           defaultProjectId={defaultProjectId ?? activeProjects[0].id}
           onClose={() => setEditingTask(null)}
+          onOpenClient={onOpenClient}
         />
       )}
       {editingProject !== null && (

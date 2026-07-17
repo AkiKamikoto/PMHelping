@@ -32,7 +32,13 @@ const INTERACTION_ICON: Record<InteractionType, typeof Phone> = {
   note: StickyNote,
 }
 
-export function ClientDetail({ clientId }: { clientId: string }) {
+export function ClientDetail({
+  clientId,
+  onOpenProject,
+}: {
+  clientId: string
+  onOpenProject?: (projectId: string) => void
+}) {
   const client = useStore((s) => s.clients.find((c) => c.id === clientId))
   const allProjects = useStore((s) => s.projects)
   const allTasks = useStore((s) => s.tasks)
@@ -169,7 +175,13 @@ export function ClientDetail({ clientId }: { clientId: string }) {
               const overdue =
                 project.deadline && project.stage !== 'completed' && Date.parse(project.deadline) < Date.now()
               return (
-                <div key={project.id} className="flex flex-col gap-1 py-2.5 text-sm">
+                <button
+                  key={project.id}
+                  onClick={() => onOpenProject?.(project.id)}
+                  disabled={!onOpenProject}
+                  className="flex flex-col gap-1 rounded-lg py-2.5 text-left text-sm transition-colors enabled:hover:bg-[var(--hover-overlay)]"
+                  style={{ cursor: onOpenProject ? 'pointer' : 'default' }}
+                >
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
                       <span className="h-2 w-2 rounded-full" style={{ background: project.color }} />
@@ -207,7 +219,7 @@ export function ClientDetail({ clientId }: { clientId: string }) {
                       )}
                     </div>
                   )}
-                </div>
+                </button>
               )
             })}
           </div>

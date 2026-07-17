@@ -1,10 +1,18 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Search, UserPlus, Building2, Archive } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { ClientModal } from './ClientModal'
 import { ClientDetail } from './ClientDetail'
 
-export function Clients() {
+export function Clients({
+  focusClientId,
+  onFocusHandled,
+  onOpenProject,
+}: {
+  focusClientId?: string | null
+  onFocusHandled?: () => void
+  onOpenProject?: (projectId: string) => void
+}) {
   const clients = useStore((s) => s.clients)
   const projects = useStore((s) => s.projects)
   const interactions = useStore((s) => s.interactions)
@@ -13,6 +21,13 @@ export function Clients() {
   const [showArchived, setShowArchived] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
+
+  useEffect(() => {
+    if (focusClientId) {
+      setSelectedId(focusClientId)
+      onFocusHandled?.()
+    }
+  }, [focusClientId, onFocusHandled])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -145,7 +160,7 @@ export function Clients() {
 
       <div>
         {activeId ? (
-          <ClientDetail clientId={activeId} />
+          <ClientDetail clientId={activeId} onOpenProject={onOpenProject} />
         ) : (
           <div
             className="flex h-full items-center justify-center rounded-xl p-10 text-sm"

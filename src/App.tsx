@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { LayoutDashboard, KanbanSquare, Timer, BarChart3, BellRing, Download, Upload, FolderKanban, Building2 } from 'lucide-react'
 import { useStore } from './store/useStore'
 import { Dashboard } from './components/Dashboard'
@@ -25,8 +25,21 @@ const PROJECT_FILTER_VIEWS: View[] = ['dashboard', 'board', 'time', 'reports']
 function App() {
   const [view, setView] = useState<View>('dashboard')
   const [projectId, setProjectId] = useState<string | 'all'>('all')
+  const [focusClientId, setFocusClientId] = useState<string | null>(null)
   const exportData = useStore((s) => s.exportData)
   const importData = useStore((s) => s.importData)
+
+  const goToClient = useCallback((clientId: string) => {
+    setFocusClientId(clientId)
+    setView('clients')
+  }, [])
+
+  const goToProject = useCallback((projectIdToOpen: string) => {
+    setProjectId(projectIdToOpen)
+    setView('board')
+  }, [])
+
+  const clearFocusClient = useCallback(() => setFocusClientId(null), [])
 
   function handleExport() {
     const json = exportData()
@@ -115,8 +128,10 @@ function App() {
 
         <div className="p-6">
           {view === 'dashboard' && <Dashboard projectId={projectId} onNavigate={setView} />}
-          {view === 'clients' && <Clients />}
-          {view === 'board' && <Board projectId={projectId} />}
+          {view === 'clients' && (
+            <Clients focusClientId={focusClientId} onFocusHandled={clearFocusClient} onOpenProject={goToProject} />
+          )}
+          {view === 'board' && <Board projectId={projectId} onOpenClient={goToClient} />}
           {view === 'time' && <TimeTracking projectId={projectId} />}
           {view === 'reports' && <Reports projectId={projectId} />}
           {view === 'reminders' && <Reminders />}
