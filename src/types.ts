@@ -2,11 +2,25 @@ export type TaskStatus = 'todo' | 'in_progress' | 'review' | 'done'
 
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent'
 
+export type ProjectStage = 'planning' | 'active' | 'on_hold' | 'completed'
+
+export const PROJECT_STAGE_LABELS: Record<ProjectStage, string> = {
+  planning: 'Планирование',
+  active: 'Активный',
+  on_hold: 'На паузе',
+  completed: 'Завершён',
+}
+
 export interface Project {
   id: string
   name: string
+  description: string
   color: string
   clientId: string | null
+  stage: ProjectStage
+  startDate: string | null
+  deadline: string | null
+  budget: number | null
   createdAt: string
   archived: boolean
 }
@@ -19,6 +33,12 @@ export interface Client {
   contactPerson: string
   phone: string
   email: string
+  website: string
+  messenger: string
+  address: string
+  inn: string
+  industry: string
+  source: string
   notes: string
   status: ClientStatus
   createdAt: string

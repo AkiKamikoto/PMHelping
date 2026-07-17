@@ -3,6 +3,8 @@ import { persist } from 'zustand/middleware'
 import { v4 as uuid } from 'uuid'
 import type { Client, Interaction, Project, Task, TaskStatus, TimeEntry, Reminder } from '../types'
 
+type NewProjectInput = Omit<Project, 'id' | 'createdAt' | 'archived' | 'color'> & { color?: string }
+
 const PROJECT_COLORS = ['#2a78d6', '#008300', '#e87ba4', '#eda100', '#1baf7a', '#eb6834', '#4a3aa7', '#e34948']
 
 function seedData(): { projects: Project[]; tasks: Task[]; clients: Client[] } {
@@ -17,13 +19,31 @@ function seedData(): { projects: Project[]; tasks: Task[]; clients: Client[] } {
         contactPerson: 'Анна Петрова',
         phone: '',
         email: '',
+        website: '',
+        messenger: '',
+        address: '',
+        inn: '',
+        industry: '',
+        source: '',
         notes: '',
         status: 'active',
         createdAt: now,
       },
     ],
     projects: [
-      { id: projectId, name: 'Внедрение Bitrix24', color: PROJECT_COLORS[0], clientId, createdAt: now, archived: false },
+      {
+        id: projectId,
+        name: 'Внедрение Bitrix24',
+        description: '',
+        color: PROJECT_COLORS[0],
+        clientId,
+        stage: 'active',
+        startDate: null,
+        deadline: null,
+        budget: null,
+        createdAt: now,
+        archived: false,
+      },
     ],
     tasks: [
       {
@@ -57,7 +77,7 @@ interface State {
   interactions: Interaction[]
   runningTimer: RunningTimer | null
 
-  addProject: (name: string, clientId: string | null, color?: string) => string
+  addProject: (input: NewProjectInput) => string
   updateProject: (id: string, patch: Partial<Project>) => void
   archiveProject: (id: string) => void
   deleteProject: (id: string) => void
@@ -102,13 +122,12 @@ export const useStore = create<State>()(
       interactions: [],
       runningTimer: null,
 
-      addProject: (name, clientId, color) => {
+      addProject: (input) => {
         const id = uuid()
         const project: Project = {
+          ...input,
           id,
-          name,
-          clientId,
-          color: color ?? PROJECT_COLORS[get().projects.length % PROJECT_COLORS.length],
+          color: input.color ?? PROJECT_COLORS[get().projects.length % PROJECT_COLORS.length],
           createdAt: new Date().toISOString(),
           archived: false,
         }

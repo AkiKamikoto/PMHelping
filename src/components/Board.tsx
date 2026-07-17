@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Plus, FolderPlus, Pencil } from 'lucide-react'
+import { Plus, FolderPlus, Pencil, CalendarClock } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import type { Project, Task, TaskStatus } from '../types'
-import { STATUS_LABELS, STATUS_ORDER } from '../types'
+import { STATUS_LABELS, STATUS_ORDER, PROJECT_STAGE_LABELS } from '../types'
 import { TaskCard } from './TaskCard'
 import { TaskModal } from './TaskModal'
 import { ProjectModal } from './ProjectModal'
+import { formatDate } from '../utils/date'
 
 export function Board({ projectId }: { projectId: string | 'all' }) {
   const projects = useStore((s) => s.projects)
@@ -47,6 +48,7 @@ export function Board({ projectId }: { projectId: string | 'all' }) {
         <div className="flex flex-wrap gap-2">
           {activeProjects.map((p) => {
             const client = clients.find((c) => c.id === p.clientId)
+            const overdue = p.deadline && p.stage !== 'completed' && Date.parse(p.deadline) < Date.now()
             return (
               <button
                 key={p.id}
@@ -57,6 +59,18 @@ export function Board({ projectId }: { projectId: string | 'all' }) {
                 <span className="h-2 w-2 rounded-full" style={{ background: p.color }} />
                 {p.name}
                 {client && <span style={{ color: 'var(--text-muted)' }}>· {client.name}</span>}
+                {p.stage !== 'active' && (
+                  <span style={{ color: 'var(--text-muted)' }}>· {PROJECT_STAGE_LABELS[p.stage]}</span>
+                )}
+                {p.deadline && (
+                  <span
+                    className="flex items-center gap-1"
+                    style={{ color: overdue ? 'var(--status-critical)' : 'var(--text-muted)' }}
+                  >
+                    <CalendarClock size={11} />
+                    {formatDate(p.deadline)}
+                  </span>
+                )}
                 <Pencil size={10} style={{ color: 'var(--text-muted)' }} />
               </button>
             )

@@ -1,8 +1,26 @@
 import { useMemo, useState } from 'react'
-import { Phone, Mail, User, Pencil, Plus, Trash2, PhoneCall, Users, StickyNote, Mail as MailIcon } from 'lucide-react'
+import {
+  Phone,
+  Mail,
+  User,
+  Pencil,
+  Plus,
+  Trash2,
+  PhoneCall,
+  Users,
+  StickyNote,
+  Mail as MailIcon,
+  Globe,
+  MessageCircle,
+  MapPin,
+  Building,
+  Tag,
+  Wallet,
+  CalendarClock,
+} from 'lucide-react'
 import { useStore } from '../store/useStore'
 import type { InteractionType } from '../types'
-import { INTERACTION_LABELS } from '../types'
+import { INTERACTION_LABELS, PROJECT_STAGE_LABELS } from '../types'
 import { ClientModal } from './ClientModal'
 import { formatDate, formatDateTime, minutesToHuman } from '../utils/date'
 import { StatusBadge } from './Badge'
@@ -80,7 +98,52 @@ export function ClientDetail({ clientId }: { clientId: string }) {
                   {client.email}
                 </span>
               )}
+              {client.website && (
+                <a
+                  href={client.website.startsWith('http') ? client.website : `https://${client.website}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 transition-opacity hover:opacity-70"
+                  style={{ color: 'var(--series-1)' }}
+                >
+                  <Globe size={13} />
+                  {client.website}
+                </a>
+              )}
+              {client.messenger && (
+                <span className="flex items-center gap-1.5">
+                  <MessageCircle size={13} />
+                  {client.messenger}
+                </span>
+              )}
             </div>
+            {(client.industry || client.inn || client.source || client.address) && (
+              <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs" style={{ color: 'var(--text-muted)' }}>
+                {client.industry && (
+                  <span className="flex items-center gap-1.5">
+                    <Building size={12} />
+                    {client.industry}
+                  </span>
+                )}
+                {client.inn && (
+                  <span className="flex items-center gap-1.5">
+                    <Tag size={12} />
+                    ИНН {client.inn}
+                  </span>
+                )}
+                {client.source && (
+                  <span className="flex items-center gap-1.5">
+                    Источник: {client.source}
+                  </span>
+                )}
+                {client.address && (
+                  <span className="flex items-center gap-1.5">
+                    <MapPin size={12} />
+                    {client.address}
+                  </span>
+                )}
+              </div>
+            )}
             {client.notes && (
               <p className="mt-2 text-sm" style={{ color: 'var(--text-muted)' }}>
                 {client.notes}
@@ -102,20 +165,51 @@ export function ClientDetail({ clientId }: { clientId: string }) {
         <div className="rounded-xl p-4" style={{ background: 'var(--surface-1)', border: '1px solid var(--border)' }}>
           <h3 className="mb-3 text-sm font-semibold">Проекты клиента</h3>
           <div className="flex flex-col divide-y" style={{ borderColor: 'var(--border)' }}>
-            {projectTaskStats.map(({ project, total, open, minutes }) => (
-              <div key={project.id} className="flex items-center justify-between py-2.5 text-sm">
-                <span className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full" style={{ background: project.color }} />
-                  {project.name}
-                </span>
-                <span className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
-                  <span>
-                    {open}/{total} открыто
-                  </span>
-                  {minutes > 0 && <span>{minutesToHuman(minutes)}</span>}
-                </span>
-              </div>
-            ))}
+            {projectTaskStats.map(({ project, total, open, minutes }) => {
+              const overdue =
+                project.deadline && project.stage !== 'completed' && Date.parse(project.deadline) < Date.now()
+              return (
+                <div key={project.id} className="flex flex-col gap-1 py-2.5 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full" style={{ background: project.color }} />
+                      {project.name}
+                      <span
+                        className="rounded-full px-1.5 py-0.5 text-[11px]"
+                        style={{ background: 'var(--page-plane)', color: 'var(--text-muted)' }}
+                      >
+                        {PROJECT_STAGE_LABELS[project.stage]}
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
+                      <span>
+                        {open}/{total} открыто
+                      </span>
+                      {minutes > 0 && <span>{minutesToHuman(minutes)}</span>}
+                    </span>
+                  </div>
+                  {(project.deadline || project.budget != null) && (
+                    <div className="flex items-center gap-3 pl-4 text-xs" style={{ color: 'var(--text-muted)' }}>
+                      {project.deadline && (
+                        <span
+                          className="flex items-center gap-1"
+                          style={{ color: overdue ? 'var(--status-critical)' : 'var(--text-muted)' }}
+                        >
+                          <CalendarClock size={12} />
+                          {formatDate(project.deadline)}
+                        </span>
+                      )}
+                      {project.budget != null && (
+                        <span className="flex items-center gap-1">
+                          <Wallet size={12} />
+                          {project.budget.toLocaleString('ru-RU')} ₽
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       )}

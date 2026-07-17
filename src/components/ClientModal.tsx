@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, Trash2, Archive } from 'lucide-react'
+import { X, Trash2, Archive, ChevronDown, ChevronRight } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import type { Client } from '../types'
 import { useEscapeClose } from '../utils/useEscapeClose'
@@ -20,15 +20,37 @@ export function ClientModal({
   const [contactPerson, setContactPerson] = useState(client?.contactPerson ?? '')
   const [phone, setPhone] = useState(client?.phone ?? '')
   const [email, setEmail] = useState(client?.email ?? '')
+  const [website, setWebsite] = useState(client?.website ?? '')
+  const [messenger, setMessenger] = useState(client?.messenger ?? '')
+  const [address, setAddress] = useState(client?.address ?? '')
+  const [inn, setInn] = useState(client?.inn ?? '')
+  const [industry, setIndustry] = useState(client?.industry ?? '')
+  const [source, setSource] = useState(client?.source ?? '')
   const [notes, setNotes] = useState(client?.notes ?? '')
+
+  const hasExtraData = Boolean(website || messenger || address || inn || industry || source)
+  const [showMore, setShowMore] = useState(hasExtraData)
 
   function handleSave() {
     if (!name.trim()) return
+    const payload = {
+      name: name.trim(),
+      contactPerson,
+      phone,
+      email,
+      website,
+      messenger,
+      address,
+      inn,
+      industry,
+      source,
+      notes,
+    }
     if (client) {
-      updateClient(client.id, { name: name.trim(), contactPerson, phone, email, notes })
+      updateClient(client.id, payload)
       onClose()
     } else {
-      const id = addClient({ name: name.trim(), contactPerson, phone, email, notes })
+      const id = addClient(payload)
       onClose(id)
     }
   }
@@ -114,6 +136,77 @@ export function ClientModal({
               />
             </label>
           </div>
+
+          <button
+            onClick={() => setShowMore((v) => !v)}
+            className="flex items-center gap-1 self-start text-xs font-medium transition-opacity hover:opacity-70"
+            style={{ color: 'var(--series-1)' }}
+          >
+            {showMore ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+            Дополнительная информация
+          </button>
+
+          {showMore && (
+            <div className="grid grid-cols-2 gap-3 rounded-lg p-3" style={{ background: 'var(--page-plane)' }}>
+              <label className="flex flex-col gap-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                Сайт
+                <input
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  placeholder="example.com"
+                  className="rounded-lg px-3 py-2 text-sm"
+                  style={{ background: 'var(--surface-1)', border: '1px solid var(--border)' }}
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                Мессенджер
+                <input
+                  value={messenger}
+                  onChange={(e) => setMessenger(e.target.value)}
+                  placeholder="Telegram, WhatsApp…"
+                  className="rounded-lg px-3 py-2 text-sm"
+                  style={{ background: 'var(--surface-1)', border: '1px solid var(--border)' }}
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                ИНН
+                <input
+                  value={inn}
+                  onChange={(e) => setInn(e.target.value)}
+                  className="rounded-lg px-3 py-2 text-sm"
+                  style={{ background: 'var(--surface-1)', border: '1px solid var(--border)' }}
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                Сфера деятельности
+                <input
+                  value={industry}
+                  onChange={(e) => setIndustry(e.target.value)}
+                  className="rounded-lg px-3 py-2 text-sm"
+                  style={{ background: 'var(--surface-1)', border: '1px solid var(--border)' }}
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                Источник
+                <input
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                  placeholder="Откуда пришёл клиент"
+                  className="rounded-lg px-3 py-2 text-sm"
+                  style={{ background: 'var(--surface-1)', border: '1px solid var(--border)' }}
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                Адрес
+                <input
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="rounded-lg px-3 py-2 text-sm"
+                  style={{ background: 'var(--surface-1)', border: '1px solid var(--border)' }}
+                />
+              </label>
+            </div>
+          )}
 
           <label className="flex flex-col gap-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
             Заметки
