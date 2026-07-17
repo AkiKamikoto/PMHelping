@@ -6,8 +6,40 @@ export interface Project {
   id: string
   name: string
   color: string
+  clientId: string | null
   createdAt: string
   archived: boolean
+}
+
+export type ClientStatus = 'active' | 'archived'
+
+export interface Client {
+  id: string
+  name: string
+  contactPerson: string
+  phone: string
+  email: string
+  notes: string
+  status: ClientStatus
+  createdAt: string
+}
+
+export type InteractionType = 'call' | 'meeting' | 'email' | 'note'
+
+export interface Interaction {
+  id: string
+  clientId: string
+  type: InteractionType
+  date: string
+  summary: string
+  createdAt: string
+}
+
+export const INTERACTION_LABELS: Record<InteractionType, string> = {
+  call: 'Звонок',
+  meeting: 'Встреча',
+  email: 'Письмо',
+  note: 'Заметка',
 }
 
 export interface Task {

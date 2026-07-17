@@ -66,7 +66,7 @@ export function Reminders() {
           </div>
           <button
             onClick={handleEnableNotifications}
-            className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium text-white"
+            className="shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium text-white transition hover:brightness-110 active:brightness-95"
             style={{ background: 'var(--series-1)' }}
           >
             Включить
@@ -82,6 +82,7 @@ export function Reminders() {
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
               placeholder="Например: позвонить клиенту"
               className="rounded-lg px-3 py-2 text-sm"
               style={{ background: 'var(--page-plane)', border: '1px solid var(--border)' }}
@@ -100,7 +101,7 @@ export function Reminders() {
           <button
             onClick={handleAdd}
             disabled={!title.trim() || !remindAt}
-            className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+            className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-white transition hover:brightness-110 active:brightness-95 disabled:opacity-40 disabled:hover:brightness-100"
             style={{ background: 'var(--series-1)' }}
           >
             <Plus size={15} />
@@ -133,13 +134,17 @@ export function Reminders() {
                   <div className="flex shrink-0 items-center gap-2">
                     <button
                       onClick={() => toggleReminder(r.id)}
-                      className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium"
+                      className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium transition-opacity hover:opacity-70"
                       style={{ background: 'color-mix(in srgb, var(--status-good) 14%, transparent)', color: 'var(--status-good)' }}
                     >
                       <Check size={13} />
                       Готово
                     </button>
-                    <button onClick={() => deleteReminder(r.id)} style={{ color: 'var(--text-muted)' }}>
+                    <button
+                      onClick={() => deleteReminder(r.id)}
+                      className="rounded-md p-1 transition-colors hover:bg-[var(--hover-overlay)]"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -161,7 +166,11 @@ export function Reminders() {
                 <p className="text-sm line-through" style={{ color: 'var(--text-muted)' }}>
                   {r.title}
                 </p>
-                <button onClick={() => deleteReminder(r.id)} style={{ color: 'var(--text-muted)' }}>
+                <button
+                  onClick={() => deleteReminder(r.id)}
+                  className="rounded-md p-1 transition-colors hover:bg-[var(--hover-overlay)]"
+                  style={{ color: 'var(--text-muted)' }}
+                >
                   <Trash2 size={14} />
                 </button>
               </div>

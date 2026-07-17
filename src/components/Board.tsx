@@ -1,18 +1,20 @@
 import { useState } from 'react'
-import { Plus, FolderPlus } from 'lucide-react'
+import { Plus, FolderPlus, Pencil } from 'lucide-react'
 import { useStore } from '../store/useStore'
-import type { Task, TaskStatus } from '../types'
+import type { Project, Task, TaskStatus } from '../types'
 import { STATUS_LABELS, STATUS_ORDER } from '../types'
 import { TaskCard } from './TaskCard'
 import { TaskModal } from './TaskModal'
+import { ProjectModal } from './ProjectModal'
 
 export function Board({ projectId }: { projectId: string | 'all' }) {
   const projects = useStore((s) => s.projects)
+  const clients = useStore((s) => s.clients)
   const tasks = useStore((s) => s.tasks)
   const moveTask = useStore((s) => s.moveTask)
-  const addProject = useStore((s) => s.addProject)
 
   const [editingTask, setEditingTask] = useState<Task | null | 'new'>(null)
+  const [editingProject, setEditingProject] = useState<Project | null | 'new'>(null)
   const [dragOverStatus, setDragOverStatus] = useState<TaskStatus | null>(null)
 
   const activeProjects = projects.filter((p) => !p.archived)
@@ -20,23 +22,21 @@ export function Board({ projectId }: { projectId: string | 'all' }) {
 
   const defaultProjectId = projectId !== 'all' ? projectId : activeProjects[0]?.id
 
-  function handleAddProject() {
-    const name = prompt('Название нового проекта:')
-    if (name?.trim()) addProject(name.trim())
-  }
-
   if (activeProjects.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 rounded-xl p-10 text-center" style={{ background: 'var(--surface-1)', border: '1px solid var(--border)' }}>
         <p style={{ color: 'var(--text-secondary)' }}>Пока нет ни одного проекта.</p>
         <button
-          onClick={handleAddProject}
-          className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white"
+          onClick={() => setEditingProject('new')}
+          className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition hover:brightness-110 active:brightness-95"
           style={{ background: 'var(--series-1)' }}
         >
           <FolderPlus size={16} />
           Создать проект
         </button>
+        {editingProject !== null && (
+          <ProjectModal project={editingProject === 'new' ? null : editingProject} onClose={() => setEditingProject(null)} />
+        )}
       </div>
     )
   }
@@ -45,19 +45,25 @@ export function Board({ projectId }: { projectId: string | 'all' }) {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div className="flex flex-wrap gap-2">
-          {activeProjects.map((p) => (
-            <span
-              key={p.id}
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs"
-              style={{ background: 'var(--surface-1)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
-            >
-              <span className="h-2 w-2 rounded-full" style={{ background: p.color }} />
-              {p.name}
-            </span>
-          ))}
+          {activeProjects.map((p) => {
+            const client = clients.find((c) => c.id === p.clientId)
+            return (
+              <button
+                key={p.id}
+                onClick={() => setEditingProject(p)}
+                className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-shadow hover:shadow-[0_0_0_1px_var(--series-1)]"
+                style={{ background: 'var(--surface-1)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
+              >
+                <span className="h-2 w-2 rounded-full" style={{ background: p.color }} />
+                {p.name}
+                {client && <span style={{ color: 'var(--text-muted)' }}>· {client.name}</span>}
+                <Pencil size={10} style={{ color: 'var(--text-muted)' }} />
+              </button>
+            )
+          })}
           <button
-            onClick={handleAddProject}
-            className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+            onClick={() => setEditingProject('new')}
+            className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-opacity hover:opacity-70"
             style={{ color: 'var(--series-1)' }}
           >
             <FolderPlus size={13} />
@@ -67,7 +73,7 @@ export function Board({ projectId }: { projectId: string | 'all' }) {
         {defaultProjectId && (
           <button
             onClick={() => setEditingTask('new')}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-white transition hover:brightness-110 active:brightness-95"
             style={{ background: 'var(--series-1)' }}
           >
             <Plus size={16} />
@@ -125,6 +131,9 @@ export function Board({ projectId }: { projectId: string | 'all' }) {
           defaultProjectId={defaultProjectId ?? activeProjects[0].id}
           onClose={() => setEditingTask(null)}
         />
+      )}
+      {editingProject !== null && (
+        <ProjectModal project={editingProject === 'new' ? null : editingProject} onClose={() => setEditingProject(null)} />
       )}
     </div>
   )
