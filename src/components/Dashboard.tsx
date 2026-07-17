@@ -32,16 +32,28 @@ export function Dashboard({
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <button onClick={() => onNavigate('board')} className="text-left">
+        <button
+          onClick={() => onNavigate('board')}
+          className="w-full rounded-xl text-left transition hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--series-1)]"
+        >
           <StatTile label="Открытые задачи" value={open.length} icon={<ListTodo size={18} />} />
         </button>
-        <button onClick={() => onNavigate('board')} className="text-left">
+        <button
+          onClick={() => onNavigate('board')}
+          className="w-full rounded-xl text-left transition hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--series-1)]"
+        >
           <StatTile label="Просрочено" value={overdue.length} icon={<AlertTriangle size={18} />} tone={overdue.length > 0 ? 'critical' : 'default'} />
         </button>
-        <button onClick={() => onNavigate('board')} className="text-left">
+        <button
+          onClick={() => onNavigate('board')}
+          className="w-full rounded-xl text-left transition hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--series-1)]"
+        >
           <StatTile label="Дедлайн на неделе" value={dueSoon.length} icon={<CalendarClock size={18} />} tone={dueSoon.length > 0 ? 'warning' : 'default'} />
         </button>
-        <button onClick={() => onNavigate('board')} className="text-left">
+        <button
+          onClick={() => onNavigate('board')}
+          className="w-full rounded-xl text-left transition hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_var(--series-1)]"
+        >
           <StatTile label="В работе" value={inProgress.length} icon={<Loader2 size={18} />} />
         </button>
       </div>
@@ -61,7 +73,7 @@ export function Dashboard({
                 <button
                   key={task.id}
                   onClick={() => onNavigate('board')}
-                  className="flex items-center justify-between gap-3 py-2.5 text-left"
+                  className="-mx-2 flex items-center justify-between gap-3 rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-[var(--hover-overlay)]"
                 >
                   <div className="flex min-w-0 items-center gap-2">
                     {project && <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: project.color }} />}

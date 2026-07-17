@@ -2,12 +2,64 @@ export type TaskStatus = 'todo' | 'in_progress' | 'review' | 'done'
 
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent'
 
+export type ProjectStage = 'planning' | 'active' | 'on_hold' | 'completed'
+
+export const PROJECT_STAGE_LABELS: Record<ProjectStage, string> = {
+  planning: 'Планирование',
+  active: 'Активный',
+  on_hold: 'На паузе',
+  completed: 'Завершён',
+}
+
 export interface Project {
   id: string
   name: string
+  description: string
   color: string
+  clientId: string | null
+  stage: ProjectStage
+  startDate: string | null
+  deadline: string | null
+  budget: number | null
   createdAt: string
   archived: boolean
+}
+
+export type ClientStatus = 'active' | 'archived'
+
+export interface Client {
+  id: string
+  name: string
+  contactPerson: string
+  phone: string
+  email: string
+  website: string
+  messenger: string
+  address: string
+  inn: string
+  industry: string
+  source: string
+  notes: string
+  status: ClientStatus
+  createdAt: string
+}
+
+export type InteractionType = 'call' | 'meeting' | 'email' | 'note'
+
+export interface Interaction {
+  id: string
+  clientId: string
+  type: InteractionType
+  date: string
+  summary: string
+  createdAt: string
+}
+
+export const INTERACTION_LABELS: Record<InteractionType, string> = {
+  call: 'Звонок',
+  meeting: 'Встреча',
+  email: 'Письмо',
+  note: 'Заметка',
 }
 
 export interface Task {

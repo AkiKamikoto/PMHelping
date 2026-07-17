@@ -94,7 +94,7 @@ export function TimeTracking({ projectId }: { projectId: string | 'all' }) {
               </span>
               <button
                 onClick={stopTimer}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-white"
+                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-white transition hover:brightness-110 active:brightness-95"
                 style={{ background: 'var(--status-critical)' }}
               >
                 <Square size={14} />
@@ -120,7 +120,7 @@ export function TimeTracking({ projectId }: { projectId: string | 'all' }) {
             <button
               onClick={() => selectedTaskId && startTimer(selectedTaskId)}
               disabled={!selectedTaskId}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-white disabled:opacity-40"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-white transition hover:brightness-110 active:brightness-95 disabled:opacity-40 disabled:hover:brightness-100"
               style={{ background: 'var(--series-1)' }}
             >
               <Play size={14} />
@@ -128,7 +128,7 @@ export function TimeTracking({ projectId }: { projectId: string | 'all' }) {
             </button>
             <button
               onClick={() => setShowManual((v) => !v)}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-[var(--hover-overlay)]"
               style={{ color: 'var(--text-secondary)' }}
             >
               <Plus size={14} />
@@ -200,7 +200,7 @@ export function TimeTracking({ projectId }: { projectId: string | 'all' }) {
             <button
               onClick={handleManualSubmit}
               disabled={!manualTaskId}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-white transition hover:brightness-110 active:brightness-95 disabled:opacity-40 disabled:hover:brightness-100"
               style={{ background: 'var(--series-1)' }}
             >
               Добавить
@@ -269,7 +269,11 @@ export function TimeTracking({ projectId }: { projectId: string | 'all' }) {
                       <span className="text-sm" style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {minutesToHuman(entry.minutes)}
                       </span>
-                      <button onClick={() => deleteTimeEntry(entry.id)} style={{ color: 'var(--text-muted)' }}>
+                      <button
+                        onClick={() => deleteTimeEntry(entry.id)}
+                        className="rounded-md p-1 transition-colors hover:bg-[var(--hover-overlay)]"
+                        style={{ color: 'var(--text-muted)' }}
+                      >
                         <Trash2 size={14} />
                       </button>
                     </div>

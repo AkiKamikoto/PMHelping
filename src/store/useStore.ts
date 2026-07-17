@@ -1,16 +1,49 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { v4 as uuid } from 'uuid'
-import type { Project, Task, TaskStatus, TimeEntry, Reminder } from '../types'
+import type { Client, Interaction, Project, Task, TaskStatus, TimeEntry, Reminder } from '../types'
+
+type NewProjectInput = Omit<Project, 'id' | 'createdAt' | 'archived' | 'color'> & { color?: string }
 
 const PROJECT_COLORS = ['#2a78d6', '#008300', '#e87ba4', '#eda100', '#1baf7a', '#eb6834', '#4a3aa7', '#e34948']
 
-function seedData(): { projects: Project[]; tasks: Task[] } {
+function seedData(): { projects: Project[]; tasks: Task[]; clients: Client[] } {
   const now = new Date().toISOString()
   const projectId = uuid()
+  const clientId = uuid()
   return {
+    clients: [
+      {
+        id: clientId,
+        name: 'ООО «Ромашка»',
+        contactPerson: 'Анна Петрова',
+        phone: '',
+        email: '',
+        website: '',
+        messenger: '',
+        address: '',
+        inn: '',
+        industry: '',
+        source: '',
+        notes: '',
+        status: 'active',
+        createdAt: now,
+      },
+    ],
     projects: [
-      { id: projectId, name: 'Внедрение Bitrix24', color: PROJECT_COLORS[0], createdAt: now, archived: false },
+      {
+        id: projectId,
+        name: 'Внедрение Bitrix24',
+        description: '',
+        color: PROJECT_COLORS[0],
+        clientId,
+        stage: 'active',
+        startDate: null,
+        deadline: null,
+        budget: null,
+        createdAt: now,
+        archived: false,
+      },
     ],
     tasks: [
       {
@@ -40,9 +73,11 @@ interface State {
   tasks: Task[]
   timeEntries: TimeEntry[]
   reminders: Reminder[]
+  clients: Client[]
+  interactions: Interaction[]
   runningTimer: RunningTimer | null
 
-  addProject: (name: string, color?: string) => string
+  addProject: (input: NewProjectInput) => string
   updateProject: (id: string, patch: Partial<Project>) => void
   archiveProject: (id: string) => void
   deleteProject: (id: string) => void
@@ -61,6 +96,14 @@ interface State {
   toggleReminder: (id: string) => void
   deleteReminder: (id: string) => void
 
+  addClient: (client: Omit<Client, 'id' | 'createdAt' | 'status'>) => string
+  updateClient: (id: string, patch: Partial<Client>) => void
+  archiveClient: (id: string) => void
+  deleteClient: (id: string) => void
+
+  addInteraction: (interaction: Omit<Interaction, 'id' | 'createdAt'>) => void
+  deleteInteraction: (id: string) => void
+
   exportData: () => string
   importData: (json: string) => void
   resetData: () => void
@@ -75,14 +118,16 @@ export const useStore = create<State>()(
       tasks: seed.tasks,
       timeEntries: [],
       reminders: [],
+      clients: seed.clients,
+      interactions: [],
       runningTimer: null,
 
-      addProject: (name, color) => {
+      addProject: (input) => {
         const id = uuid()
         const project: Project = {
+          ...input,
           id,
-          name,
-          color: color ?? PROJECT_COLORS[get().projects.length % PROJECT_COLORS.length],
+          color: input.color ?? PROJECT_COLORS[get().projects.length % PROJECT_COLORS.length],
           createdAt: new Date().toISOString(),
           archived: false,
         }
@@ -159,9 +204,33 @@ export const useStore = create<State>()(
         set((s) => ({ reminders: s.reminders.map((r) => (r.id === id ? { ...r, done: !r.done } : r)) })),
       deleteReminder: (id) => set((s) => ({ reminders: s.reminders.filter((r) => r.id !== id) })),
 
+      addClient: (client) => {
+        const id = uuid()
+        set((s) => ({
+          clients: [...s.clients, { ...client, id, status: 'active', createdAt: new Date().toISOString() }],
+        }))
+        return id
+      },
+      updateClient: (id, patch) =>
+        set((s) => ({ clients: s.clients.map((c) => (c.id === id ? { ...c, ...patch } : c)) })),
+      archiveClient: (id) =>
+        set((s) => ({ clients: s.clients.map((c) => (c.id === id ? { ...c, status: 'archived' } : c)) })),
+      deleteClient: (id) =>
+        set((s) => ({
+          clients: s.clients.filter((c) => c.id !== id),
+          interactions: s.interactions.filter((i) => i.clientId !== id),
+          projects: s.projects.map((p) => (p.clientId === id ? { ...p, clientId: null } : p)),
+        })),
+
+      addInteraction: (interaction) =>
+        set((s) => ({
+          interactions: [...s.interactions, { ...interaction, id: uuid(), createdAt: new Date().toISOString() }],
+        })),
+      deleteInteraction: (id) => set((s) => ({ interactions: s.interactions.filter((i) => i.id !== id) })),
+
       exportData: () => {
-        const { projects, tasks, timeEntries, reminders } = get()
-        return JSON.stringify({ projects, tasks, timeEntries, reminders }, null, 2)
+        const { projects, tasks, timeEntries, reminders, clients, interactions } = get()
+        return JSON.stringify({ projects, tasks, timeEntries, reminders, clients, interactions }, null, 2)
       },
       importData: (json) => {
         const data = JSON.parse(json)
@@ -170,12 +239,15 @@ export const useStore = create<State>()(
           tasks: data.tasks ?? [],
           timeEntries: data.timeEntries ?? [],
           reminders: data.reminders ?? [],
+          clients: data.clients ?? [],
+          interactions: data.interactions ?? [],
           runningTimer: null,
         })
       },
-      resetData: () => set({ ...seedData(), timeEntries: [], reminders: [], runningTimer: null }),
+      resetData: () =>
+        set({ ...seedData(), timeEntries: [], reminders: [], interactions: [], runningTimer: null }),
     }),
-    { name: 'pmhelping-storage' }
+    { name: 'pmhelping-storage', version: 2 }
   )
 )
 

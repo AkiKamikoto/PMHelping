@@ -25,7 +25,7 @@ export function TaskCard({
       onClick={onClick}
       draggable
       onDragStart={(e) => e.dataTransfer.setData('text/task-id', task.id)}
-      className="flex w-full flex-col gap-2 rounded-lg p-3 text-left"
+      className="flex w-full flex-col gap-2 rounded-lg p-3 text-left transition-shadow hover:shadow-[0_0_0_1px_var(--series-1)]"
       style={{ background: 'var(--page-plane)', border: '1px solid var(--border)' }}
     >
       {showProject && project && (
