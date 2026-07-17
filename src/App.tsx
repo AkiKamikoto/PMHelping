@@ -1,5 +1,16 @@
 import { useCallback, useState } from 'react'
-import { LayoutDashboard, KanbanSquare, Timer, BarChart3, BellRing, Download, Upload, FolderKanban, Building2 } from 'lucide-react'
+import {
+  LayoutDashboard,
+  KanbanSquare,
+  Timer,
+  BarChart3,
+  BellRing,
+  Download,
+  Upload,
+  FolderKanban,
+  Building2,
+  BookOpen,
+} from 'lucide-react'
 import { useStore } from './store/useStore'
 import { Dashboard } from './components/Dashboard'
 import { Board } from './components/Board'
@@ -7,9 +18,10 @@ import { TimeTracking } from './components/TimeTracking'
 import { Reports } from './components/Reports'
 import { Reminders } from './components/Reminders'
 import { Clients } from './components/Clients'
+import { Guide } from './components/Guide'
 import { ProjectSelect } from './components/ProjectSelect'
 
-export type View = 'dashboard' | 'clients' | 'board' | 'time' | 'reports' | 'reminders'
+export type View = 'dashboard' | 'clients' | 'board' | 'time' | 'reports' | 'reminders' | 'guide'
 
 const NAV: { id: View; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'dashboard', label: 'Дашборд', icon: LayoutDashboard },
@@ -18,6 +30,7 @@ const NAV: { id: View; label: string; icon: typeof LayoutDashboard }[] = [
   { id: 'time', label: 'Учёт времени', icon: Timer },
   { id: 'reports', label: 'Отчёты', icon: BarChart3 },
   { id: 'reminders', label: 'Напоминания', icon: BellRing },
+  { id: 'guide', label: 'Справочник PM', icon: BookOpen },
 ]
 
 const PROJECT_FILTER_VIEWS: View[] = ['dashboard', 'board', 'time', 'reports']
@@ -135,6 +148,7 @@ function App() {
           {view === 'time' && <TimeTracking projectId={projectId} />}
           {view === 'reports' && <Reports projectId={projectId} />}
           {view === 'reminders' && <Reminders />}
+          {view === 'guide' && <Guide onNavigate={setView} />}
         </div>
       </main>
     </div>
